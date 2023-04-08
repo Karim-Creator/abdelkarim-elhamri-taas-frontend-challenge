@@ -61,13 +61,20 @@
     padding: 0;
 }
 
+h2,
+h1 {
+    font-family: 'Inter-Bold';
+}
+
 h3,
 label,
 p {
     font-family: 'Inter-Medium';
 }
 
+h4,
 input,
+a,
 button {
     font-family: 'Inter-Regular';
 }
