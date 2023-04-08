@@ -17,7 +17,11 @@
       <div class="flex items-center gap-3">
         <!-- Dropdown Menu -->
         <div class="relative">
-          <button class="flex items-center hover:text-white/80" aria-label="dropdown-menu" @click="toggleDropDown = !toggleDropDown">
+          <button
+            class="flex items-center hover:text-white/80"
+            aria-label="dropdown-menu"
+            @click="toggleDropDown = !toggleDropDown"
+          >
             <!-- Plus Icon -->
             <span class="w-4 h-4">
               <svg
@@ -53,24 +57,33 @@
                 />
               </svg>
             </span>
-
           </button>
-            <div class="absolute top-8 right-0 w-36 bg-white text-dark border border-dark/20 rounded shadow-md" v-if="toggleDropDown"> 
-                
-                <div class="text-dark text-sm border-b border-dark/20 p-2">
-                    <p class="text-dark/70 text-xs">Authorized as</p>
-                    <h3>Karim-Creator</h3>
-                </div>
-
-                <button class="text-sm text-left w-full p-2 my-2 transition-colors duration-500 ease-in-out hover:bg-light">Logout</button>
+          <div
+            class="absolute top-8 right-0 w-36 bg-white text-dark border border-dark/20 rounded shadow-md"
+            v-if="toggleDropDown"
+          >
+            <div class="text-dark text-sm border-b border-dark/20 p-2">
+              <p class="text-dark/70 text-xs">Authorized as</p>
+              <h3>{{ userData.login }}</h3>
             </div>
+
+            <router-link
+              to="/"
+              class="text-sm block text-left w-full p-2 my-2 transition-colors duration-500 ease-in-out hover:bg-light"
+            >
+              Logout
+            </router-link>
+          </div>
         </div>
 
         <!-- Avatar Image -->
         <div class="rounded-full">
           <img
             class="w-8 h-8 rounded-full object-center object-cover cursor-pointer"
-            src="https://avatars.githubusercontent.com/u/71701164?v=4"
+            :src="
+              userData?.avatar_url ||
+              'https://st3.depositphotos.com/4111759/13425/v/450/depositphotos_134255670-stock-illustration-avatar-people-male-profile-gray.jpg?forcejpeg=true'
+            "
             alt="github-avatar"
             loading="lazy"
           />
@@ -80,9 +93,32 @@
   </header>
 </template>
 
-
 <script setup>
-import { ref } from "vue";
+import axios from "axios";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
-const toggleDropDown = ref(false)
+// Global API_URL
+import API_URL from "../api/helper";
+
+// Vue Route
+const route = useRouter();
+
+const toggleDropDown = ref(false);
+
+const userData = ref();
+
+const getUserData = async () => {
+  const response = await axios.get(
+    `${API_URL}users/${route.currentRoute.value.params.login}`
+  );
+
+  //   response.data = userData.value
+  userData.value = response.data;
+  console.log(userData.value);
+};
+
+// onMounted(() => {
+//   getUserData();
+// });
 </script>

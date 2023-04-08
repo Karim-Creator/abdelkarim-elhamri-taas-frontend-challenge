@@ -57,11 +57,18 @@
     </div>
 
     <!-- Error Toast -->
-    <div class="absolute bottom-2 flex items-center justify-between bg-red-500 w-1/3 p-4 rounded-md" v-if="showErrorToast">
+    <div
+      class="absolute bottom-2 flex items-center justify-between bg-red-500 w-1/3 p-4 rounded-md"
+      v-if="showErrorToast"
+    >
       <div v-html="htmlError"></div>
 
-        <!-- Close Toast Button -->
-      <button @click="showErrorToast = false" class="text-white p-1 hover:bg-white hover:bg-opacity-10" aria-label="close-error-toast">
+      <!-- Close Toast Button -->
+      <button
+        @click="showErrorToast = false"
+        class="text-white p-1 hover:bg-white hover:bg-opacity-10"
+        aria-label="close-error-toast"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -104,27 +111,28 @@ const fetchGithubUser = async (userNameInputData) => {
     // If promise is resolved and data is available, then push 'repositories' route
     if (response) {
       route.push({
-        name: 'repositories', 
+        name: "repositories",
         // Push Params to dynamic page
-        params: {login: response.data.login}
+        params: { login: response.data.login },
       });
-    }
-    console.log(response.data.login);
+    } 
+    
   } catch (err) {
     // If promise is rejected, show error toast
     showErrorToast.value = true;
     // Empty user input
-    userNameInput.value = '';
+    userNameInput.value = "";
     console.error(err);
+
+    // Error Toast HTML
     htmlError.value = `
         <h3 class="text-white text-sm">${err.response.status}, Yikes Please make to write a correct Github username !</h3>
-    `
+    `;
 
-    // Hide Error Toast after 2s
+    // Hide Error Toast after 3s
     setTimeout(() => {
-        showErrorToast.value = false;
-    }, 2000);
-    
+      showErrorToast.value = false;
+    }, 3000);
   }
 };
 </script>
