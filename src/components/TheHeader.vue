@@ -4,14 +4,14 @@
     <!-- Main Container -->
     <div class="container flex mx-auto justify-between items-center">
       <!-- Github Image -->
-      <div class="flex justify-center items-center">
+      <router-link to="/" class="flex justify-center items-center">
         <img
           class="w-10 h-10 rounded-full object-center object-cover cursor-pointer"
           src="../assets/images/github-logo-white.jpg"
           alt="github-logo"
           loading="lazy"
         />
-      </div>
+      </router-link>
 
       <!-- Avatar - Dropdown Menu -->
       <div class="flex items-center gap-3">
@@ -80,13 +80,13 @@
         <div class="rounded-full">
           <img
             class="w-8 h-8 rounded-full object-center object-cover cursor-pointer"
-            :src="
-              userData?.avatar_url ||
-              'https://st3.depositphotos.com/4111759/13425/v/450/depositphotos_134255670-stock-illustration-avatar-people-male-profile-gray.jpg?forcejpeg=true'
-            "
+            :src="userData?.avatar_url"
+            v-if="userData"
             alt="github-avatar"
             loading="lazy"
           />
+
+          <div class="w-8 h-8 bg-light rounded-full animate-pulse" v-if="!userData"></div>
         </div>
       </div>
     </div>
@@ -118,7 +118,7 @@ const getUserData = async () => {
   console.log(userData.value);
 };
 
-// onMounted(() => {
-//   getUserData();
-// });
+onMounted(() => {
+//   getUserData(); 
+});
 </script>

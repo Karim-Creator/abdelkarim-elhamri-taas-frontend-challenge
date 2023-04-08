@@ -6,7 +6,9 @@
     <!-- BreadCrumbs -->
     <div class="w-full flex items-center bg-grey border-b border-dark/10 px-2 py-6">
       <!-- Container -->
-      <div class="container mx-auto flex flex-col items-start justify-between md:flex-row">
+      <div
+        class="container mx-auto flex flex-col items-start justify-between md:flex-row"
+      >
         <div class="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -24,18 +26,21 @@
           </svg>
 
           <!-- User Link -->
-          <router-link to="/" class="text-primary hover:underline" aria-label="user-link"
-            >Karim-Creator</router-link
+          <router-link
+            :to="{ name: 'repositories', params: { login: $route.params.login } }"
+            class="text-primary hover:underline"
+            aria-label="user-link"
+            >{{ $route.params.login }}</router-link
           >
           <span class="text-dark/50 text-xl px-1">/</span>
 
           <!-- Repository Name -->
-          <router-link
-            to="/"
-            class="text-primary text-lg font-bold truncate w-28 hover:underline lg:w-auto"
+          <h3
+            class="text-primary text-lg font-bold truncate w-28 cursor-pointer hover:underline lg:w-auto"
             aria-label="repositories-name-link"
-            >abdelkarim-elhamri-taas-frontend-challenge</router-link
           >
+            {{ $route.params.reponame }}
+          </h3>
           <!-- Visiblity -->
           <span
             class="text-xs text-dark/80 border border-dark/20 rounded-full py-0.5 px-2 ml-2"
@@ -121,7 +126,7 @@
     </div>
 
     <!-- Commits Dropdown -->
-    <div class="relative container mx-auto px-2 py-6">
+    <div class="relative container mx-auto px-1 py-6">
       <button
         class="flex items-center bg-grey text-dark text-sm font-semibold border border-dark/20 rounded-md px-4 py-1.5 transition-colors duration-500 ease-in-out hover:bg-grey/50"
         aria-label="commits-list-dropdown"
@@ -142,7 +147,7 @@
         </svg>
 
         <!-- Branch Name -->
-        main
+        {{ $route.params.branch }}
 
         <!-- Down Arrow Icon -->
         <svg
@@ -163,7 +168,7 @@
 
       <!-- Branch Dropdown -->
       <div
-        class="absolute w-56 mt-1 border border-dark/20 rounded-md shadow-xs bg-white z-10"
+        class="absolute w-44 mt-1 border border-dark/20 rounded-md shadow-xs bg-white z-10"
         v-if="toggleBranchDropdown"
       >
         <div class="flex items-center justify-between border-b border-dark/20 p-2">
@@ -192,25 +197,30 @@
         </div>
 
         <!-- Branches List -->
-        <div class="bg-grey rounded-md">
-          <button
-            class="text-dark text-sm w-full text-left p-2 border-b border-dark/20 hover:bg-white"
-            aria-label="CHANGE-LATER"
+        <div class="flex flex-col bg-grey rounded-md max-h-full overflow-y-auto">
+          <router-link
+            class="text-dark text-sm w-full truncate text-left p-2 border-b border-dark/20 hover:bg-white"
+            aria-label="branches-list"
+            v-for="branch in branches"
+            :key="branch.index"
+            :to="{
+              name: 'commits',
+              params: {
+                login: $route.params.login,
+                reponame: $route.params.reponame,
+                branch: branch.name,
+              },
+            }"
+            @click="fetchNewCommits(branch)"
           >
-            main
-          </button>
-          <button
-            class="text-dark text-sm w-full text-left p-2 rounded-md hover:bg-white"
-            aria-label="CHANGE-LATER"
-          >
-            dev
-          </button>
+            {{ branch.name }}
+          </router-link>
         </div>
       </div>
     </div>
 
     <!-- Commits Cards -->
-    <div class="relative container mx-auto flex items-center px-4">
+    <div class="relative container mx-auto flex items-center px-2">
       <!-- Timeline -->
       <span class="absolute h-full w-0.5 bg-dark/20">
         <svg
@@ -226,41 +236,45 @@
         </svg>
       </span>
 
-      <div class="ml-6 w-full lg:w-2/3">
+      <div class="ml-6 pb-6 w-full lg:w-2/3">
         <!-- Commit date -->
-        <p class="text-sm text-dark/70 mt-0.5">Commits on Apr 7, 2023</p>
+        <p class="text-sm text-dark/70 mt-0.5">
+          Commits on Apr {{ new Date().getDate() }}, {{ new Date().getFullYear() }}
+        </p>
 
         <!-- Commit List Card -->
         <div class="border border-b-0 border-dark/20 mt-4 rounded-md">
           <!-- Single Commit Card -->
           <div
             class="flex items-center justify-between rounded-md px-4 py-2 border-b border-dark/20 hover:bg-grey"
+            v-for="commit in commits"
+            :key="commit.key"
           >
             <!-- Commiter Informations -->
             <div>
               <!-- Commite message -->
               <router-link
                 class="text-dark text-sm font-semibold hover:text-primary hover:underline"
-                to="/"
-                >Finished Repositories View</router-link
+                to="#"
+                >{{ commit.commit.message }}</router-link
               >
 
               <div class="flex items-center gap-2 text-xs mt-1">
                 <!-- Commiter Image -->
                 <img
                   class="w-6 h-6 rounded-full object-center object-cover cursor-pointer"
-                  src="https://avatars.githubusercontent.com/u/71701164?v=4"
+                  :src="commit.author.avatar_url"
                   alt="commiter-image"
                   loading="lazy"
                 />
 
                 <!-- Commiter Name -->
-                <router-link class="text-dark font-semibold hover:underline" to="/"
-                  >Karim-Creator
+                <router-link class="text-dark font-semibold hover:underline" to="#"
+                  >{{ commit.commit.author.name }}
                 </router-link>
 
                 <!-- Last Commit -->
-                <p class="text-dark/60">committed 3 hours ago</p>
+                <p class="text-dark/60">{{ commit.commit.author.date }}</p>
               </div>
             </div>
 
@@ -286,14 +300,135 @@
             </button>
           </div>
         </div>
+
+        <!-- Loading Card Skeleton -->
+        <div
+          class="flex items-center justify-between rounded-md px-4 py-3 mt-4 bg-grey animate-pulse"
+          v-if="!commits"
+        >
+          <div class="w-full">
+            <h2 class="w-20 h-4 bg-white rounded-md"></h2>
+            <div class="w-5/6 h-6 bg-white my-4"></div>
+          </div>
+          <div class="w-10 h-10 bg-white rounded-md"></div>
+        </div>
       </div>
-    </div>
+    </div> 
+
+    <!-- Error Toast -->
+    <ErrorToastView v-if="showErrorToast" :htmlError="htmlError" />
   </section>
 </template>
 
 <script setup>
-import { ref } from "vue";
 import TheHeader from "../components/TheHeader.vue";
+import axios from "axios";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import ErrorToastView from "../components/ErrorToastView.vue";
+
+// Global API_URL
+import API_URL from "../api/helper";
+
+// Vue Route
+const route = useRouter();
 
 const toggleBranchDropdown = ref(false);
+
+const branches = ref();
+const commits = ref();
+
+const nextItem = ref(1);
+const items = ref([]);
+
+// Error Toast
+const showErrorToast = ref(false);
+let htmlError = ref();
+
+const fetchBranches = async () => {
+  try {
+    const response = await axios.get(
+      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/branches`
+    );
+    branches.value = response.data;
+    console.log(branches.value);
+  } catch (err) {
+    console.log(err);
+
+    // Error Toast HTML
+    htmlError.value = err.response.status;
+
+    showErrorToast.value = true;
+    // Hide Error Toast after 3s
+    setTimeout(() => {
+      showErrorToast.value = false;
+    }, 3000);
+  }
+};
+
+const fetchCommits = async () => {
+  try {
+    const response = await axios.get(
+      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/commits`
+    );
+    commits.value = response.data;
+    console.log(commits.value);
+  } catch (err) {
+    // Error Toast HTML
+    htmlError.value = err.response.status;
+
+    showErrorToast.value = true;
+    // Hide Error Toast after 3s
+    setTimeout(() => {
+      showErrorToast.value = false;
+    }, 3000);
+  }
+};
+
+const fetchNewCommits = async (branch) => {
+  try {
+    route.push({ params: { branch: branch.name } });
+    const response = await axios.get(
+      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/commits?per_page=1`
+    );
+
+    commits.value = response.data;
+  } catch (err) {
+    // Error Toast HTML
+    htmlError.value = err.response.status;
+
+    showErrorToast.value = true;
+    // Hide Error Toast after 3s
+    setTimeout(() => {
+      showErrorToast.value = false;
+    }, 3000);
+  }
+};
+
+const loadMore = function () {
+  /** This is only for this demo, you could
+   * replace the following with code to hit
+   * an endpoint to pull in more data. **/ 
+  setTimeout((e) => {
+    for (var i = 0; i < 20; i++) {
+      items.value.push("Item " + nextItem.value++);
+    } 
+  }, 200);
+  /**************************************/
+};
+onMounted(() => {
+  //   fetchBranches();
+    fetchCommits();
+
+  // Detect when scrolled to bottom.
+  const listElm = document.querySelector("#infinite-list");
+  listElm.addEventListener("scroll", (e) => {
+    if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
+      loadMore();
+    }
+  });
+
+  // Initially load some items.
+  loadMore();
+});
 </script>

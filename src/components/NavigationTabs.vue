@@ -1,5 +1,5 @@
 <template>
-    <section class="py-8 px-4 md:px-0">
+    <section class="py-6 px-4 md:px-0">
       <!-- Tabs List -->
       <nav class="flex items-center gap-6 border-b border-dark/20 min-w-full overflow-y-auto md:justify-center">
 

@@ -56,35 +56,13 @@
       </div>
     </div>
 
-    <!-- Error Toast -->
-    <div
-      class="absolute bottom-2 flex items-center justify-between bg-red-500 w-1/3 p-4 rounded-md"
-      v-if="showErrorToast"
-    >
-      <div v-html="htmlError"></div>
-
-      <!-- Close Toast Button -->
-      <button
-        @click="showErrorToast = false"
-        class="text-white p-1 hover:bg-white hover:bg-opacity-10"
-        aria-label="close-error-toast"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-          class="w-4 h-4"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
+    <!-- Error Toast --> 
+    <ErrorToastView v-if="showErrorToast" :htmlError="htmlError"/>
   </section>
 </template>
 
 <script setup>
+import ErrorToastView from "../components/ErrorToastView.vue";
 import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -116,7 +94,7 @@ const fetchGithubUser = async (userNameInputData) => {
         params: { login: response.data.login },
       });
     } 
-    
+
   } catch (err) {
     // If promise is rejected, show error toast
     showErrorToast.value = true;
@@ -125,9 +103,7 @@ const fetchGithubUser = async (userNameInputData) => {
     console.error(err);
 
     // Error Toast HTML
-    htmlError.value = `
-        <h3 class="text-white text-sm">${err.response.status}, Yikes Please make to write a correct Github username !</h3>
-    `;
+    htmlError.value = err.response.status;
 
     // Hide Error Toast after 3s
     setTimeout(() => {
