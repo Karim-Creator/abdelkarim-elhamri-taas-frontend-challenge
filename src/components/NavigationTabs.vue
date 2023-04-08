@@ -2,10 +2,12 @@
     <section class="py-8 px-4 md:px-0">
       <!-- Tabs List -->
       <nav class="flex items-center gap-6 border-b border-dark/20 min-w-full overflow-y-auto md:justify-center">
+
         <!-- Repositories Link -->
         <router-link
           to="#"
           class="flex items-center justify-center text-dark text-sm border-b-2 border-[#FD8C73] p-2 rounded-t-md transition-colors duration-500 ease-in-out hover:bg-light"
+          aria-label="repositories-link"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -29,6 +31,7 @@
         <router-link
           to="#"
           class="flex items-center justify-center text-dark text-sm p-2 rounded-t-md transition-colors duration-500 ease-in-out hover:bg-light"
+          aria-label="overview-link"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -51,6 +54,7 @@
         <router-link
           to="#"
           class="flex items-center justify-center text-dark text-sm p-2 rounded-t-md transition-colors duration-500 ease-in-out hover:bg-light"
+          aria-label="projects-link"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -73,6 +77,7 @@
         <router-link
           to="#"
           class="flex items-center justify-center text-dark text-sm p-2 rounded-t-md transition-colors duration-500 ease-in-out hover:bg-light"
+          aria-label="packages-link"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -35,12 +35,12 @@
             <div class="flex items-center justify-between text-xs">
 
               <!-- Repository Link -->
-              <router-link to="/" class="text-primary font-semibold hover:underline"
+              <router-link to="/" class="text-primary font-semibold hover:underline" aria-label="repository-link"
                 >Go to Home</router-link
               >
 
               <!-- Visiblity -->
-              <span class="border border-dark/20 rounded-full py-0.5 px-2">Public</span>
+              <span class="text-dark/80 border border-dark/20 rounded-full py-0.5 px-2">Public</span>
             </div>
 
             <!-- Repository Description -->

@@ -17,7 +17,7 @@
       <div class="flex items-center gap-3">
         <!-- Dropdown Menu -->
         <div class="relative">
-          <button class="flex items-center hover:text-white/80" aria-label="dropdown-menu" @click="showDropDown = !showDropDown">
+          <button class="flex items-center hover:text-white/80" aria-label="dropdown-menu" @click="toggleDropDown = !toggleDropDown">
             <!-- Plus Icon -->
             <span class="w-4 h-4">
               <svg
@@ -55,7 +55,7 @@
             </span>
 
           </button>
-            <div class="absolute top-8 right-0 w-36 bg-white text-dark border border-dark/20 rounded shadow-md" v-if="showDropDown"> 
+            <div class="absolute top-8 right-0 w-36 bg-white text-dark border border-dark/20 rounded shadow-md" v-if="toggleDropDown"> 
                 
                 <div class="text-dark text-sm border-b border-dark/20 p-2">
                     <p class="text-dark/70 text-xs">Authorized as</p>
@@ -84,5 +84,5 @@
 <script setup>
 import { ref } from "vue";
 
-const showDropDown = ref(false)
+const toggleDropDown = ref(false)
 </script>

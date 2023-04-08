@@ -68,7 +68,8 @@ h1 {
 
 h3,
 label,
-p {
+p,
+span {
     font-family: 'Inter-Medium';
 }
 
