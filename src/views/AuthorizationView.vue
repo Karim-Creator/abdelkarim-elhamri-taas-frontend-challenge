@@ -1,10 +1,8 @@
 <template>
   <!-- Authorization Section -->
-  <section class="w-full h-screen flex items-center justify-center bg-grey">
-
+  <section class="relative w-full h-screen flex items-center justify-center bg-grey">
     <!-- Parent Container -->
     <div class="w-full flex flex-col items-center mx-2 md:mx-0">
-
       <!-- GitHub Logo -->
       <div class="flex justify-center items-center">
         <img
@@ -17,7 +15,6 @@
 
       <!-- Form Container -->
       <div class="w-full bg-white border border-dark/20 rounded-md p-6 mt-8 md:w-80">
-
         <form @submit.prevent class="w-full h-full">
           <!-- Github User Name Input -->
           <div class="flex flex-col">
@@ -27,6 +24,7 @@
               type="text"
               id="github-username"
               name="github-username"
+              v-model="userNameInput"
             />
           </div>
 
@@ -34,15 +32,17 @@
           <button
             class="w-full bg-secondary text-white text-sm rounded-md py-2 mt-4 hover:"
             aria-label="github-account-authorization"
+            @click="fetchGithubUser(userNameInput)"
           >
             Authorize my Github Account
           </button>
         </form>
-        
       </div>
 
       <!-- Github Repository For The Coding Challenge -->
-      <div class="w-full bg-white text-sm text-center border border-dark/20 rounded-md px-6 py-4 mt-8 md:w-80">
+      <div
+        class="w-full bg-white text-sm text-center border border-dark/20 rounded-md px-6 py-4 mt-8 md:w-80"
+      >
         <p class="text-dark">
           Check out Github
           <a
@@ -55,5 +55,76 @@
         </p>
       </div>
     </div>
+
+    <!-- Error Toast -->
+    <div class="absolute bottom-2 flex items-center justify-between bg-red-500 w-1/3 p-4 rounded-md" v-if="showErrorToast">
+      <div v-html="htmlError"></div>
+
+        <!-- Close Toast Button -->
+      <button @click="showErrorToast = false" class="text-white p-1 hover:bg-white hover:bg-opacity-10" aria-label="close-error-toast">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="w-4 h-4"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   </section>
 </template>
+
+<script setup>
+import axios from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+// Global API_URL
+import API_URL from "../api/helper";
+
+// Vue Route
+const route = useRouter();
+
+// Github User Input
+const userNameInput = ref();
+
+// Error Toast
+const showErrorToast = ref(false);
+let htmlError = ref();
+
+// Fetch user based on User Input
+const fetchGithubUser = async (userNameInputData) => {
+  try {
+    // Axios fetch function
+    const response = await axios.get(`${API_URL}users/${userNameInputData}`);
+
+    // If promise is resolved and data is available, then push 'repositories' route
+    if (response) {
+      route.push({
+        name: 'repositories', 
+        // Push Params to dynamic page
+        params: {login: response.data.login}
+      });
+    }
+    console.log(response.data.login);
+  } catch (err) {
+    // If promise is rejected, show error toast
+    showErrorToast.value = true;
+    // Empty user input
+    userNameInput.value = '';
+    console.error(err);
+    htmlError.value = `
+        <h3 class="text-white text-sm">${err.response.status}, Yikes Please make to write a correct Github username !</h3>
+    `
+
+    // Hide Error Toast after 2s
+    setTimeout(() => {
+        showErrorToast.value = false;
+    }, 2000);
+    
+  }
+};
+</script>
