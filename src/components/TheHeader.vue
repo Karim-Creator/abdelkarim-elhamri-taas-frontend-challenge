@@ -4,7 +4,7 @@
     <!-- Main Container -->
     <div class="container flex mx-auto justify-between items-center">
       <!-- Github Image -->
-      <router-link to="/" class="flex justify-center items-center">
+      <router-link to="/" class="flex justify-center items-center" aria-label="authorization-page-link">
         <img
           class="w-10 h-10 rounded-full object-center object-cover cursor-pointer"
           src="../assets/images/github-logo-white.jpg"
@@ -59,7 +59,7 @@
             </span>
           </button>
           <div
-            class="absolute top-8 right-0 w-36 bg-white text-dark border border-dark/20 rounded shadow-md"
+            class="absolute top-8 right-0 w-36 z-20 bg-white text-dark border border-dark/20 rounded shadow-md"
             v-if="toggleDropDown"
           >
             <div class="text-dark text-sm border-b border-dark/20 p-2">
@@ -70,6 +70,7 @@
             <router-link
               to="/"
               class="text-sm block text-left w-full p-2 my-2 transition-colors duration-500 ease-in-out hover:bg-light"
+              aria-label="logout-button"
             >
               Logout
             </router-link>
@@ -112,13 +113,11 @@ const getUserData = async () => {
   const response = await axios.get(
     `${API_URL}users/${route.currentRoute.value.params.login}`
   );
-
-  //   response.data = userData.value
-  userData.value = response.data;
-  console.log(userData.value);
+ 
+  userData.value = response.data; 
 };
 
 onMounted(() => {
-//   getUserData(); 
+  getUserData(); 
 });
 </script>

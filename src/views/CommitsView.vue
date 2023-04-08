@@ -228,7 +228,7 @@
           viewBox="0 0 16 16"
           version="1.1"
           data-view-component="true"
-          class="w-4 h-4 absolute -right-[7px] top-1 text-current bg-white"
+          class="w-4 h-4 absolute -right-[7px] top-1 bg-white"
         >
           <path
             d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"
@@ -239,11 +239,16 @@
       <div class="ml-6 pb-6 w-full lg:w-2/3">
         <!-- Commit date -->
         <p class="text-sm text-dark/70 mt-0.5">
-          Commits on Apr {{ new Date().getDate() }}, {{ new Date().getFullYear() }}
+          Commits on {{ new Date().getMonth() }} {{ new Date().getDate() }},
+          {{ new Date().getFullYear() }}
         </p>
 
         <!-- Commit List Card -->
-        <div class="border border-b-0 border-dark/20 mt-4 rounded-md">
+        <div
+          class="border border-dark/20 mt-4 rounded-md overflow-y-auto lg:h-screen"
+          id="watched-container"
+          v-show="commits"
+        >
           <!-- Single Commit Card -->
           <div
             class="flex items-center justify-between rounded-md px-4 py-2 border-b border-dark/20 hover:bg-grey"
@@ -255,6 +260,7 @@
               <!-- Commite message -->
               <router-link
                 class="text-dark text-sm font-semibold hover:text-primary hover:underline"
+                aria-label="commiter-message"
                 to="#"
                 >{{ commit.commit.message }}</router-link
               >
@@ -269,7 +275,10 @@
                 />
 
                 <!-- Commiter Name -->
-                <router-link class="text-dark font-semibold hover:underline" to="#"
+                <router-link
+                  class="text-dark font-semibold hover:underline"
+                  to="#"
+                  aria-label="commiter-name"
                   >{{ commit.commit.author.name }}
                 </router-link>
 
@@ -299,6 +308,26 @@
               </svg>
             </button>
           </div>
+
+          <div class="flex justify-center items-center my-4">
+            <svg
+              aria-hidden="true"
+              class="flex items-center justify-center w-14 h-14 text-light animate-spin fill-primary"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              v-if="showLoadingSpinner"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+          </div>
         </div>
 
         <!-- Loading Card Skeleton -->
@@ -313,7 +342,7 @@
           <div class="w-10 h-10 bg-white rounded-md"></div>
         </div>
       </div>
-    </div> 
+    </div>
 
     <!-- Error Toast -->
     <ErrorToastView v-if="showErrorToast" :htmlError="htmlError" />
@@ -321,114 +350,120 @@
 </template>
 
 <script setup>
-import TheHeader from "../components/TheHeader.vue";
 import axios from "axios";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+// Components
+import TheHeader from "../components/TheHeader.vue";
 import ErrorToastView from "../components/ErrorToastView.vue";
 
 // Global API_URL
 import API_URL from "../api/helper";
 
-// Vue Route
+// Vue Router
 const route = useRouter();
 
+// Branches Dropdown
 const toggleBranchDropdown = ref(false);
 
 const branches = ref();
-const commits = ref();
+const commits = ref([]);
 
-const nextItem = ref(1);
-const items = ref([]);
+// Infinite Scroll Spinner
+const showLoadingSpinner = ref(false);
 
-// Error Toast
+// Content to display per page
+const contentPerPage = ref(10);
+
+// Show/Hide Error Toast
 const showErrorToast = ref(false);
+// Error html content
 let htmlError = ref();
 
+// Catch error if promise is rejected
+const catchError = function (err) {
+  // Error Toast HTML
+  htmlError.value = err.response.status;
+  console.error(err);
+
+  showErrorToast.value = true;
+  // Hide Error Toast after 3s
+  setTimeout(() => {
+    showErrorToast.value = false;
+  }, 3000);
+};
+
+// Fetch Branch List
 const fetchBranches = async () => {
   try {
+    // branches list
     const response = await axios.get(
       `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/branches`
     );
+
+    // Assign data to branches value to be displayed
     branches.value = response.data;
-    console.log(branches.value);
   } catch (err) {
-    console.log(err);
-
-    // Error Toast HTML
-    htmlError.value = err.response.status;
-
-    showErrorToast.value = true;
-    // Hide Error Toast after 3s
-    setTimeout(() => {
-      showErrorToast.value = false;
-    }, 3000);
+    catchError(err);
   }
 };
 
-const fetchCommits = async () => {
+// Fetch Commits List
+const fetchCommits = async (page = contentPerPage.value) => {
   try {
+    // commits data
     const response = await axios.get(
-      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/commits`
+      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/commits?per_page=${page}`
     );
-    commits.value = response.data;
-    console.log(commits.value);
-  } catch (err) {
-    // Error Toast HTML
-    htmlError.value = err.response.status;
 
-    showErrorToast.value = true;
-    // Hide Error Toast after 3s
-    setTimeout(() => {
-      showErrorToast.value = false;
-    }, 3000);
+    // Push to the commits array
+    commits.value.push(...response.data);
+  } catch (err) {
+    catchError(err);
   }
 };
 
+// Fetch new commits when branch changes
 const fetchNewCommits = async (branch) => {
   try {
+    // Push the clicked branch to the page router
     route.push({ params: { branch: branch.name } });
+
+    // Fetch data from api
     const response = await axios.get(
-      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/commits?per_page=1`
+      `${API_URL}repos/${route.currentRoute.value.params.login}/${route.currentRoute.value.params.reponame}/commits/${branch.name}`
     );
 
-    commits.value = response.data;
+    // Assign data to commits value to be displayed
+    commits.value = [...response.data];
+    console.log(commits.value)
   } catch (err) {
-    // Error Toast HTML
-    htmlError.value = err.response.status;
-
-    showErrorToast.value = true;
-    // Hide Error Toast after 3s
-    setTimeout(() => {
-      showErrorToast.value = false;
-    }, 3000);
+    catchError(err);
   }
 };
 
-const loadMore = function () {
-  /** This is only for this demo, you could
-   * replace the following with code to hit
-   * an endpoint to pull in more data. **/ 
-  setTimeout((e) => {
-    for (var i = 0; i < 20; i++) {
-      items.value.push("Item " + nextItem.value++);
-    } 
-  }, 200);
-  /**************************************/
-};
 onMounted(() => {
-  //   fetchBranches();
-    fetchCommits();
+  // Fetch data when component is mounted
+  fetchBranches();
+  fetchCommits();
 
-  // Detect when scrolled to bottom.
-  const listElm = document.querySelector("#infinite-list");
-  listElm.addEventListener("scroll", (e) => {
-    if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
-      loadMore();
+  // Infinite Scroll
+  const el = document.getElementById("watched-container");
+  // Checks if user reached the bottom
+  el.addEventListener("scroll", (e) => {
+    // Get user viewport cords
+    const { scrollHeight, scrollTop, clientHeight } = e.target;
+
+    if (Math.abs(scrollHeight - clientHeight - scrollTop) < 1) {
+      // If user has reached the buttom then show spinner
+      showLoadingSpinner.value = true;
+
+      setTimeout(() => {
+        // fetch data and remove the spinner
+        fetchCommits();
+        showLoadingSpinner.value = false;
+      }, 1000);
     }
   });
-
-  // Initially load some items.
-  loadMore();
 });
 </script>

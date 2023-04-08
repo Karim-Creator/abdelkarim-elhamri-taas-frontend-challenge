@@ -1,29 +1,43 @@
 # YouCan-Coding-Challenge-2
 
-This template should help get you started developing with Vue 3 in Vite.
+This a quick guide you can follow to run the project on your local machine.
 
-## Recommended IDE Setup
+## Tech
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+**Front-End:** Vue.js, Javascript and TailwindCSS
 
-## Customize configuration
+**Back-End:** Github API, Axios
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## 🚀 SETUP
 
-## Project Setup
+Open your CMD or Bash and follow the guide to clone the project on your machine.
 
-```sh
+1- Clone the project.
+```bash
+git clone https://github.com/Karim-Creator/abdelkarim-elhamri-taas-frontend-challenge.git 'your_folder_name'
+```
+
+2- Make sure you are on the right directory.
+```bash
+cd 'your_folder_name'
+```
+
+3- Install the dependencies.
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
+4- Start the project.
+```bash
 npm run dev
 ```
 
-### Compile and Minify for Production
+## LINKS
 
-```sh
-npm run build
-```
+Some helpful link that you might be interested in:
+
+[Vue Js](https://vuejs.org//) - 
+[Tailwind CSS](https://tailwindcss.com/) -
+[Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) -
+[Github API](https://docs.github.com/en) -
+[Axios](https://axios-http.com/fr/docs/intro)

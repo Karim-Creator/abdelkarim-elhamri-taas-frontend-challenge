@@ -5,36 +5,42 @@
 
     <!-- Repositories Cards Container -->
     <div class="w-full container mx-auto px-4 lg:px-0 lg:flex">
-        
       <!-- Avatar Image -->
       <div class="w-full flex flex-col justify-start items-center mr-0 lg:w-1/3">
         <img
-          class="w-56 h-56 rounded-full object-center object-cover lg:w-72 lg:h-72" 
-          :src="
-            repositoriesData[0]?.owner.avatar_url 
-          " 
+          class="w-56 h-56 rounded-full object-center object-cover lg:w-72 lg:h-72"
+          :src="repositoriesData[0]?.owner.avatar_url"
           v-if="repositoriesData[0]?.owner.avatar_url"
           loading="lazy"
         />
         <!-- Loading Avatar Sceleton -->
-        <span class="w-56 h-56 rounded-full bg-grey animate-pulse border-2 border-grey lg:w-72 lg:h-72" v-if="!repositoriesData[0]?.owner.avatar_url"></span>
+        <span
+          class="w-56 h-56 rounded-full bg-grey animate-pulse border-2 border-grey lg:w-72 lg:h-72"
+          v-if="!repositoriesData[0]?.owner.avatar_url"
+        ></span>
 
         <!-- Avatar Names -->
-        <h3 class="text-dark text-xl text-center mt-4 md:text-left" v-if="repositoriesData[0]?.owner.avatar_url">
+        <h3
+          class="text-dark text-xl text-center mt-4 md:text-left"
+          v-if="repositoriesData[0]?.owner.avatar_url"
+        >
           {{ $route.params.login }}
         </h3>
 
         <!-- Loading Name Sceleton -->
-        <h3 class="w-40 h-5 mt-4 bg-grey animate-pulse" v-if="!repositoriesData[0]?.owner.avatar_url"></h3>
+        <h3
+          class="w-40 h-5 mt-4 bg-grey animate-pulse"
+          v-if="!repositoriesData[0]?.owner.avatar_url"
+        ></h3>
       </div>
 
       <div class="w-full mt-4 md:mt-0 lg:w-2/3">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col justify-between md:flex-row md:items-center">
           <!-- Heading -->
           <h4 class="text-dark/80">Repositories List :</h4>
 
           <!-- Search Form -->
-          <form @submit.prevent class="relative">
+          <form @submit.prevent class="relative my-2 md:mt-0">
             <div class="relative">
               <!-- Search Icon -->
               <div class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -87,35 +93,50 @@
             </div>
 
             <div
-              class="absolute flex flex-col items-start justify-start w-full max-h-80 overflow-y-auto bg-grey border border-b-0 border-dark/20 rounded-md mt-1"
+              class="absolute flex flex-col items-start justify-start w-full max-h-80 overflow-y-auto bg-grey border border-b-0 border-dark/20 rounded-md mt-1 z-20"
               v-if="searchInput.length != ''"
             >
-              <button
+              <router-link
+                :to="{
+                  name: 'commits',
+                  params: {
+                    login: data.owner.login,
+                    reponame: data.name,
+                    branch: data.default_branch,
+                  },
+                }"
                 class="flex items-center text-dark text-sm text-left border-b border-dark/20 w-full px-3 py-6 truncate transition-colors duration-500 ease-out hover:bg-white"
+                aria-label="filter-data-button"
                 v-for="data in filterData()"
                 :key="data.index"
               >
-                <span>{{ data.name }}</span>
-              </button>
+                <span v-if="data">{{ data.name }}</span>
+
+                <span class="text-2xl text-dark" v-if="!data">No results were found.</span>
+              </router-link>
             </div>
           </form>
         </div>
 
         <!-- Cards List -->
         <div class="grid grid-cols-1 gap-6 mt-4 md:grid-cols-2">
-          <!-- Single Card --> 
+          <!-- Single Card -->
           <div
             class="p-4 border border-dark/20 rounded-md"
             v-for="data in filterData()"
             :key="data.index"
           >
             <!-- Repository Link + Visiblity -->
-            <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center justify-between text-xs" v-if="data">
               <!-- Repository Link -->
               <router-link
                 :to="{
                   name: 'commits',
-                  params: { login: data.owner.login, reponame: data.name, branch: data.default_branch },
+                  params: {
+                    login: data.owner.login,
+                    reponame: data.name,
+                    branch: data.default_branch,
+                  },
                 }"
                 class="text-primary font-semibold hover:underline"
                 aria-label="repository-link"
@@ -149,14 +170,14 @@
               <p class="text-dark/80 text-xs">{{ data?.language }}</p>
             </div>
           </div>
+        </div>
 
-          <!-- Loading Skeleton -->
-          <div class="p-4 bg-grey rounded-md animate-pulse">
-            <h2 class="w-20 h-4 bg-white rounded-md"></h2>
-            <div class="w-full h-6 my-3 bg-white"></div>
-            <div class="w-4/5 h-6 bg-white"></div>
-            <div class="w-10 h-3 mt-3 bg-white"></div>
-          </div>
+        <!-- Loading Skeleton -->
+        <div class="p-4 bg-grey rounded-md animate-pulse" v-if="showSkeletonLoader">
+          <h2 class="w-20 h-4 bg-white rounded-md"></h2>
+          <div class="w-full h-6 my-3 bg-white"></div>
+          <div class="w-4/5 h-6 bg-white"></div>
+          <div class="w-10 h-3 mt-3 bg-white"></div>
         </div>
       </div>
     </div>
@@ -173,7 +194,6 @@ import { ref, onMounted, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import ErrorToastView from "./ErrorToastView.vue";
 
-
 // Global API_URL
 import API_URL from "../api/helper";
 
@@ -184,6 +204,8 @@ const repositoriesData = ref([]);
 
 const searchInput = ref("");
 const showSearchSpinner = ref(false);
+
+const showSkeletonLoader = ref(true);
 
 // Error Toast
 const showErrorToast = ref(false);
@@ -210,12 +232,13 @@ const fetchUserData = async () => {
     );
 
     repositoriesData.value = response.data;
-    console.log(repositoriesData.value)
+    showSkeletonLoader.value = false;
   } catch (err) {
     //Catch erros & log them
     console.error(err);
     // Error Toast HTML
     htmlError.value = err.response.status;
+    showSkeletonLoader.value = true;
 
     showErrorToast.value = true;
     // Hide Error Toast after 3s

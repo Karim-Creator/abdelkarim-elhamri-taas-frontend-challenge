@@ -62,10 +62,10 @@
 </template>
 
 <script setup>
-import ErrorToastView from "../components/ErrorToastView.vue";
-import axios from "axios";
 import { ref } from "vue";
+import axios from "axios";
 import { useRouter } from "vue-router";
+import ErrorToastView from "../components/ErrorToastView.vue";
 
 // Global API_URL
 import API_URL from "../api/helper";

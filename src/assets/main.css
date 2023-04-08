@@ -40,17 +40,6 @@
 }
 
 
-/* LIGHT FONT */
-
-@font-face {
-    font-family: 'Inter-Light';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('../assets/fonts/Inter-Light.ttf') format('truetype');
-}
-
-
 /********************* GLOBAL STYLES *********************/
 
 *,

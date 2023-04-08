@@ -3,7 +3,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
     history: createWebHistory(
         import.meta.env.BASE_URL),
-    routes: [{
+    routes: [
+
+        // Home Page / Authorization
+        {
             path: '/',
             name: 'home',
             component: () =>
@@ -12,29 +15,24 @@ const router = createRouter({
         {
             path: '/authorization',
             name: 'authorization',
-            // route level code-splitting
-            // this generates a separate chunk (About.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
             component: () =>
                 import ('../views/AuthorizationView.vue')
         },
+
+        // Repositories Dynamic Page
         {
             path: '/repositories/:login',
             name: 'repositories',
             props: true,
-            // route level code-splitting
-            // this generates a separate chunk (About.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
             component: () =>
                 import ('../views/RepositoriesView.vue')
         },
+
+        // Commits Dynamic Page
         {
             path: '/commits/:login/:reponame/:branch',
             name: 'commits',
             props: true,
-            // route level code-splitting
-            // this generates a separate chunk (About.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
             component: () =>
                 import ('../views/CommitsView.vue')
         },
