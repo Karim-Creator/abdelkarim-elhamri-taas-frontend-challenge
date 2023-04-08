@@ -60,3 +60,14 @@
     margin: 0;
     padding: 0;
 }
+
+h3,
+label,
+p {
+    font-family: 'Inter-Medium';
+}
+
+input,
+button {
+    font-family: 'Inter-Regular';
+}
